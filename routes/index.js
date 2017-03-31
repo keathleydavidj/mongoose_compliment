@@ -3,28 +3,22 @@ var router = express.Router();
 var Compliment = require('../models/compliment');
 
 /* GET home page. */
-var randomize = function(arr) {
-  return arr[Math.floor(Math.random() * arr.length)];
-};
-
 router.get('/', function(req, res, next) {
-  var compliment;
-
-  Compliment.find({}, '', function(err, compArr) {
-    compliment = randomize(compArr);
+  Compliment.justPickOne(function(err, compliment){
+    var comp = compliment.toObject();
     res.render('index', {
       title: 'Express',
-      compliment: compliment
+      compliment: comp.compliment
     });
   });
 });
 
 router.post('/', function(req, res, next) {
   var newCompliment = new Compliment({
-    body: req.body.compliment
+    compliment: req.body.compliment
   });
 
-  newCompliment.save(function(err, post) {
+  newCompliment.save(function(err, compliment) {
     if (err) {
       res.status(500).send({
         status: 'Error',
@@ -33,7 +27,7 @@ router.post('/', function(req, res, next) {
     } else {
       res.status(200).json({
         status: 'OK',
-        post: post
+        compliment: compliment
       });
     }
   });
